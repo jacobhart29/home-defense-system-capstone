@@ -4,7 +4,8 @@
   "notes": [
     "JSON is data-only; comments are stored in this array",
     "Speeds and sensitivity are percentages (0-100)",
-    "File paths are externalized to avoid hard-coding"
+    "File paths are externalized to avoid hard-coding",
+    "Speed are set to low on servos to not miss max without missing is like 70 and fly wheel is low for testing"
   ],
   
   "file_paths": {
