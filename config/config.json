@@ -1,0 +1,9 @@
+{
+  "name": "Home Defense System",
+  "version": "1.0.0",
+
+  "file_paths": [
+    "body tracking task": "FILE PATH",
+    "face tracking task": "FILE PATH"
+  ]
+}
