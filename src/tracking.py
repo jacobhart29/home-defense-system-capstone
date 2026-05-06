@@ -1,14 +1,12 @@
 import cv2
 import numpy as np
-import mediapipe
+import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 cap = cv2.VideoCapture(0)
 
 
-BaseOptions = python.BaseOptions(model_asset_path="hand_landmarker.task")
-FaceDetector = vision.FaceDetector.create_from_options(BaseOptions)
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
