@@ -1,9 +1,14 @@
 import cv2
 import numpy as np
-
+import mediapipe
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
 cap = cv2.VideoCapture(0)
 
+
+BaseOptions = python.BaseOptions(model_asset_path="hand_landmarker.task")
+FaceDetector = vision.FaceDetector.create_from_options(BaseOptions)
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
@@ -11,11 +16,13 @@ if not cap.isOpened():
 while True: 
     (ret, frame) = cap.read()
     
+
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         break
 
-        cv2.imshow('frame', frame)
+    cv2.imshow('frame', frame)
+
     if cv2.waitKey(1) == ord('q'):
         break
 
