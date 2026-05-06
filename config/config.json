@@ -1,6 +1,11 @@
 {
   "name": "Home Defense System",
   "version": "1.0.0",
+  "notes": [
+    "JSON is data-only; comments are stored in this array",
+    "Speeds and sensitivity are percentages (0-100)",
+    "File paths are externalized to avoid hard-coding"
+  ],
   
   "file_paths": {
     "body_tracking_task": "FILE PATH",
@@ -11,20 +16,13 @@
   },
   
   "motor_speeds": {
-    "pan_servo": 100,
-    "tilt_servo": 100,
-    "fly_wheel": 100
+    "pan_servo": 30,
+    "tilt_servo": 30,
+    "fly_wheel": 30
   },
-
-  "detection_sensitvity": {
-    "body_tracking": 70,
-    "face_tracking": 100
-  },
-
-  "comments": {
-    "this just has to be like this because json is data only": 0,
-    "the speeds and sensitvity are all % and out of 100": 0,
-    "and this is just so we don't hard code theme in": 0
-  }
   
+  "detection_sensitivity": {
+    "body_tracking": 70,
+    "face_tracking": 80
+  }
 }
