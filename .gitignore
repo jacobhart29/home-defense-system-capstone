@@ -149,7 +149,7 @@ activemq-data/
 
 # Environments
 .env
-token.json
+tokens.json
 .envrc
 .venv
 env/
