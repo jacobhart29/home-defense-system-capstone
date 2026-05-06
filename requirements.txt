@@ -1,0 +1,1 @@
+this is for later when we code the thingy on our computers we can just clone to rep to the pi and do pip install -e requirements.txt and have all of the things install
