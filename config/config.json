@@ -25,7 +25,7 @@
   "detection_sensitivity": {
     "body_tracking": 70,
     "face_tracking": 80
-  }
+  },
 
   "pinouts": {
     "fly_wheel": 1,
