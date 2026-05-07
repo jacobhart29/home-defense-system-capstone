@@ -26,4 +26,12 @@
     "body_tracking": 70,
     "face_tracking": 80
   }
+
+  "pinouts": {
+    "fly_wheel": 1,
+    "pan_servo": 2,
+    "tilt_servo": 3,
+    "laser": 4
+  }
+  
 }
