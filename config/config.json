@@ -9,7 +9,7 @@
   ],
   
   "file_paths": {
-    "body_tracking": "FILE PATH",
+    "body_tracking": "../model/pose_landmarker_lite.task",
     "face_tracking": "../model/blaze_face_full_range_sparse.tflite",
     "saved_targets": "FILE PATH",
     "safe_targets": "FILE PATH",
