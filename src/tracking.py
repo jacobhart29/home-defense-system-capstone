@@ -1,11 +1,15 @@
 import cv2
 import numpy as np
+import json
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 cap = cv2.VideoCapture(0)
 
+with open('../config/config.json', 'r', encoding='utf-8') as config:
+    face_data = config["file_paths"]["face_tracking"]
+    body_data = config["file_paths"]["body_tracking"]
 
 if not cap.isOpened():
     print("Cannot open camera")
