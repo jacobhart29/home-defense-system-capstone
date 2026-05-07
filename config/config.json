@@ -9,8 +9,8 @@
   ],
   
   "file_paths": {
-    "body_tracking_task": "FILE PATH",
-    "face_tracking_task": "FILE PATH",
+    "body_tracking": "FILE PATH",
+    "face_tracking": "../model/blaze_face_full_range_sparse.tflite",
     "saved_targets": "FILE PATH",
     "safe_targets": "FILE PATH",
     "unsafe_targets": "FILE PATH"
