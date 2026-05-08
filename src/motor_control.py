@@ -29,6 +29,10 @@ def stop_fly_wheel_brake():
     motor_speed_controller.value = 0
 
 def set_fly_wheel(speed, direction):
+    normalized_speed = speed / 100.0
+  
+    normalized_speed = max(0.0, min(1.0, normalized_speed))
+
     if direction == 1:
         motor_foward.on()
         motor_backward.off()
@@ -37,8 +41,8 @@ def set_fly_wheel(speed, direction):
         motor_backward.on()
     else:
         raise ValueError("Direction must be 0 (backward) or 1 (forward)")
-    motor_speed_controller.value = speed
-
+        
+    motor_speed_controller.value = normalized_speed
 
 set_fly_wheel(fly_wheel_speed, 1)
 time.sleep(5)
