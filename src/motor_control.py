@@ -2,6 +2,12 @@ from gpiozero import PWMOutputDevice, OutputDevice, Servo
 import time
 import json
 from pathlib import Path
+import platform
+
+if platform.system() == 'Windows':
+    from gpiozero.pins.mock import MockFactory
+    from gpiozero import Device
+    Device.pin_factory = MockFactory()
 
 motor_foward = OutputDevice(17)
 motor_backward = OutputDevice(27)
@@ -69,6 +75,12 @@ def run_motor_test():
 
 if __name__ == "__main__":
     try:
+        run_motor_test()
+        run_motor_test()
+        run_motor_test()
+        run_motor_test()
+        run_motor_test()
+        run_motor_test()
         run_motor_test()
     except KeyboardInterrupt:
         pass

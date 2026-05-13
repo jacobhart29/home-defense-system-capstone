@@ -4,3 +4,4 @@ opencv-python==4.9.0.80
 websockets==12.0
 gpiozero==2.0.1
 rpi-lgpio==0.1.0.1
+deepface==0.0.100
