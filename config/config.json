@@ -19,7 +19,7 @@
   "motor_speeds": {
     "pan_servo": 30,
     "tilt_servo": 30,
-    "fly_wheel": 30
+    "fly_wheel": 100
   },
   
   "detection_sensitivity": {
@@ -28,10 +28,9 @@
   },
 
   "pinouts": {
-    "fly_wheel": 1,
-    "pan_servo": 2,
-    "tilt_servo": 3,
-    "laser": 4
+    "tilt_servo": 22,
+    "laser": 4,
+    "buzzer": 26
   }
   
 }
