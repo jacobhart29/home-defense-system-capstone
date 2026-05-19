@@ -5,7 +5,13 @@ import mediapipe.tasks as tasks
 from mediapipe.tasks.python.vision.core import image as mp_image
 from pathlib import Path
 
-cap = cv2.VideoCapture(0)
+rtsp_url = "rtsp://192.168.0.90"
+cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+if not cap.isOpened():
+    print(f"Cannot open RTSP stream: {rtsp_url}")
+    print("Falling back to default camera...")
+    cap = cv2.VideoCapture(0)
 
 config_path = Path(__file__).resolve().parent.parent / 'config' / 'config.json'
 with config_path.open('r', encoding='utf-8') as config_file:

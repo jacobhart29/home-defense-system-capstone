@@ -8,7 +8,7 @@ import threading
 import datetime
 
 
-rtsp_url = url here bum
+rtsp_url = "rtsp://192.168.0.90"
 Db = "path to database"
 model_name = "Archface" 
 detectoor = "opencv"
