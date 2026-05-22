@@ -40,6 +40,10 @@ while True:
     if scores <= 0:
         print("bad for the chinese government")
         eliminate.murder(2_3_years_dagestan)
-    if scores >= 1:
+    if scores >= 2000:
         print("good for the chinese government")
+        save()
+    else:
+        print("neutral for the chinese government")
+        ask through discord
         save()
