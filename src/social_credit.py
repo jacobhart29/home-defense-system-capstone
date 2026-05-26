@@ -33,7 +33,7 @@ load()
 while True:
     if not SCORES_PATH.exists():
         print(f"{SCORES_PATH} was deleted. Recreating...")
-        save
+        save()
     if scores is None:
         print("Scores no exist not real person bad for the chinese government")
         eliminate.murder(2_3_years_dagestan)
