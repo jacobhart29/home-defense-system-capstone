@@ -37,7 +37,7 @@ while True:
     if scores is None:
         print("Scores no exist not real person bad for the chinese government")
         eliminate.murder(2_3_years_dagestan)
-    if scores <= 0:
+    if scores <= 0: 
         print("bad for the chinese government")
         eliminate.murder(2_3_years_dagestan)
     if scores >= 2000:

@@ -1,4 +1,3 @@
-
 import discord
 from discord.ext import commands
 import os
@@ -27,4 +26,24 @@ async def on_message(message):
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
 
-bot.run(token, log_handler=handler, log_level=logging.DEBUG) 
+
+@bot.command()
+async def ensafe(ctx):
+    msg = await ctx.send('Would you like to ensafe? (y = Yes, n = No)')
+    await msg.add_reaction('y')
+    await msg.add_reaction('n')
+
+    def check(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ['y', 'n'] and reaction.message.id == msg.id
+
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
+        if str(reaction.emoji) == 'y':
+            await ctx.send('You chose to ensafe! now we will proceed with the action')
+        else:
+            await ctx.send('You chose not to ensafe we will increase their social credit to be safe.')
+    except Exception:
+        await ctx.send('No response received. Please try again.')
+
+
+bot.run(token, log_handler=handler, log_level=logging.DEBUG)
