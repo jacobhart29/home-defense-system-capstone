@@ -1,5 +1,4 @@
 import os
-
 from deepface import DeepFace
 import cv2
 import numpy as np
@@ -7,143 +6,169 @@ import time
 import threading
 import datetime
 
-
-rtsp_url = "rtsp://192.168.0.90"
+# --- CONFIGURATION ---
+rtsp_url_1 = "rtsp://root:defense@192.168.0.90:554/axis-media/media.amp?videocodec=h264&camera=1"
+rtsp_url_2 = "rtsp://root:defense@192.168.0.91:554/axis-media/media.amp?videocodec=h264&camera=2"
 Db = "path to database"
-model_name = "Archface" 
-detectoor = "opencv"
+model_name = "ArcFace"  
+detector = "opencv"     
 dist_m = "cosine"
 dist_threshold = 0.4
 skip_frames = 5
-detect_width = 960
+detect_width = 1280      
 display = True
 log_unknowns = True
 
-
 class rtspstream:
-    def __init__(self, rtsp_url):
-        self.cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
-        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Reduce buffer size to minimize latency
-        self.frame= None
+    def __init__(self, url):
+        self.url = url
+        self.cap = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG)
+        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Minimize latency
+        self.frame = None
         self.lock = threading.Lock()
         self.running = True
-        self.thread = threading.Thread(target=self.update, daemon=True)
-        print("Starting RTSP stream thread...")
+        self.thread = threading.Thread(target=self._reader, daemon=True)
+        self.thread.start()
+        print(f"Starting RTSP stream thread for {self.url}...")
 
     def _reader(self):
         while self.running:
             ret, frame = self.cap.read()
             if not ret:
-                print("Failed to read frame from RTSP stream.")
+                time.sleep(1)
                 continue
             with self.lock:
                 self.frame = frame
-        else:
-            time.sleep(0.1)  # Sleep briefly to avoid busy-waiting
+            time.sleep(0.01)  # Prevent CPU pinning
 
     def read(self):
         with self.lock:
             return self.frame.copy() if self.frame is not None else None
-            
+
     def reconnect(self):
-        print("Attempting to reconnect to RTSP stream...")
+        print(f"Attempting to reconnect to {self.url}...")
         self.cap.release()
-        self.cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
+        self.cap = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG)
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        print("Reconnection attempt finished.")
+        print(f"Reconnection attempt finished for {self.url}.")
 
     def stop(self):
         self.running = False
         self.cap.release()
 
-#Recognition now
+
 def identity(face_crop):
-    #return name distance or unknown
+    """Returns name and distance, or 'Unknown, None'."""
     try:
-        result = DeepFace.find(face_crop, db_path=Db, model_name=model_name, detector_backend=detector, distance_metric=dist_m)
-        if len(result) > 0 and result[0].shape[0] > 0 and result[0]['cosine'][0] < dist_threshold:
-            return result[0]['identity'][0]
-    except Exception:
-        return "Unknown,None"
-def _draw(
-    frame, 
-    face_crop, 
-    identity, 
-    display=display, 
-    log_unknowns=log_unknowns
-):
-    if display:
-        cv2.putText(frame, identity, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        cv2.imshow("Face Recognition", frame)
-        cv2.waitKey(1)
-    if log_unknowns and identity == "Unknown,None":
-        with open("unknown_log.txt", "a") as f:
-            f.write(f"{datetime.datetime.now()}: Unknown face detected\n")
-def main():
-
-    os.makedirs(".logs/unkowns", exist_ok=True)
-
-
-    stream = rtspstream(rtsp_url)
-    frame_count = 0
-    time.sleep(2) 
-    lastresults = []
-    no_frame_count = 0
-    while True:
-        frame = stream.read()
-        if frame is None:
-            no_frame_count += 1
-            if no_frame_count > 10:  # If we haven't received a frame for a while, try reconnecting
-                stream.reconnect()
-                no_frame_count = 0
+        result = DeepFace.find(
+            face_crop, 
+            db_path=Db, 
+            model_name=model_name, 
+            detector_backend=detector, 
+            distance_metric=dist_m,
+            enforce_detection=False
+        )
+        if len(result) > 0 and not result[0].empty:
+            # Get the top match distance from the first results dataframe
+            df = result[0]
+            distance = df[dist_m].values[0]
+            if distance  30:
+                stream1.reconnect()
+                no_frame_1 = 0
+            time.sleep(0.05)
             continue
-        no_frame_count = 0
+        if frame2 is None:
+            no_frame_2 += 1
+            if no_frame_2 > 30:
+                stream2.reconnect()
+                no_frame_2 = 0
+            time.sleep(0.05)
+            continue
+        
+        no_frame_1 = 0
+        no_frame_2 = 0
         frame_count += 1
-        display_frame = frame.copy()
+
+        # Match dimensions before stitching (Normalize Cam 2 height to Cam 1 height)
+        h1, w1 = frame1.shape[:2]
+        h2, w2 = frame2.shape[:2]
+        if h1 != h2:
+            new_w2 = int(w2 * (h1 / h2))
+            frame2 = cv2.resize(frame2, (new_w2, h1))
+        
+        # Merge streams side-by-side horizontally
+        merged_frame = cv2.hconcat([frame1, frame2])
+        display_frame = merged_frame.copy()
+
+        # Update detections on target intervals
         if frame_count % skip_frames == 0:
-            h_orig, w_orig = frame.shape[:2]
-            scalle = detect_width / w_orig
-            detect_height = int(h_orig * scalle)
-            sMALL_frame = cv2.resize(frame, (detect_width, detect_height))
+            h_orig, w_orig = merged_frame.shape[:2]
+            scale = detect_width / w_orig
+            detect_height = int(h_orig * scale)
+            small_frame = cv2.resize(merged_frame, (detect_width, detect_height))
+            
             try:
-                faces = DeepFace.extract_faces(img_path=sMALL_frame, detector_backend=detector, enforce_detection=False, align=True)
+                faces = DeepFace.extract_faces(
+                    img_path=small_frame, 
+                    detector_backend=detector, 
+                    enforce_detection=False, 
+                    align=True
+                )
                 lastresults = []
+                
                 for face_obj in faces:
                     conf = face_obj.get("confidence", 1.0)
-                    if conf < 0.75:  # Filter out low-confidence detections
+                    if conf < 0.75:
                         continue
+                        
                     r = face_obj["region"]
-                    x = int(r["x"] / scalle)
-                    y = int(r["y"] / scalle)
-                    w = int(r["w"] / scalle)
-                    h = int(r["h"] / scalle)
-
-                    x1 = max(0, x); y1 = max(0, y)
-                    x2 = min(w_orig, x + w); y2 = min(h_orig, y + h)
+                    # Scale coordinates back up to native merged resolution
+                    x = int(r["x"] / scale)
+                    y = int(r["y"] / scale)
+                    w = int(r["w"] / scale)
+                    h = int(r["h"] / scale)
                     
-                    if face_crop.size == 0 or w< 60 or h < 60: 
+                    x1, y1 = max(0, x), max(0, y)
+                    x2, y2 = min(w_orig, x + w), min(h_orig, y + h)
+                    
+                    face_crop = merged_frame[y1:y2, x1:x2]
+                    if face_crop.size == 0 or w < 60 or h < 60:
                         continue
+                        
                     name, dist = identity(face_crop)
-
-                    if LOG_UNKNOWN and name == "Unknown,None":
-                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                        cv2.imwrite(f".logs/unkowns/unknown_{timestamp}.jpg", face_crop)
                     
-                    lastresults.append((x, y, w, h, name, dist))
-
+                    if log_unknowns and name == "Unknown":
+                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                        cv2.imwrite(f".logs/unknowns/unknown_{timestamp}.jpg", face_crop)
+                        with open("unknown_log.txt", "a") as f:
+                            f.write(f"{datetime.datetime.now()}: Unknown face detected\n")
+                            
+                    lastresults.append((x1, y1, x2, y2, name, dist))
             except Exception as e:
                 pass
-        for (x, y, w, h, name, dist) in lastresults:
-            _draw(display_frame, face_crop, name, display=display, log_unknowns=log_unknowns)
 
-            cv2.putText(display_frame, {frame_count}, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-            cv2.imshow("Face Recognition", display_frame)
+        # Draw overlays across the merged space
+        for (x1, y1, x2, y2, name, dist) in lastresults:
+            color = (0, 0, 255) if name == "Unknown" else (0, 255, 0)
+            label = f"{name}" if dist is None else f"{name} ({dist:.2f})"
+            
+            cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
+            cv2.putText(display_frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-            if DISPLAY:
-                cv2.imshow("DeepFace - Live", display_frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-        stream.stop()
-        if DISPLAY:
-            cv2.destroyAllWindows()
-            print("Exiting...")
+        if display:
+            # Diagnostic telemetry overlay
+            cv2.putText(display_frame, f"Frame: {frame_count}", (10, 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.imshow("DeepFace - Merged Dual Live", display_frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    stream1.stop()
+    stream2.stop()
+    if display:
+        cv2.destroyAllWindows()
+    print("Exiting...")
+
+if __name__ == "__main__":
+    main()
