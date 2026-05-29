@@ -12,6 +12,14 @@ from flask import Flask, Response
 import mediapipe as mp
 import mediapipe.tasks as tasks
 from pathlib import Path
+import audio
+
+audio.init_audio(str(Path(__file__).resolve().parent.parent / 'sounds'))
+
+sounds = audio.list_sounds()
+print(f"Available sounds: {sounds}")
+
+audio.play("cave7.ogg")
 
 app = Flask(__name__)
 
