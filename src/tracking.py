@@ -19,7 +19,7 @@ audio.init_audio(str(Path(__file__).resolve().parent.parent / 'sounds'))
 sounds = audio.list_sounds()
 print(f"Available sounds: {sounds}")
 
-audio.play("cave7.ogg")
+audio.play("cave3.ogg")
 
 app = Flask(__name__)
 
