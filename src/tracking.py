@@ -12,10 +12,6 @@ from flask import Flask, Response
 import mediapipe as mp
 import mediapipe.tasks as tasks
 from pathlib import Path
-import audio
-
-audio.play("face_tracking_start.wav")
-
 
 app = Flask(__name__)
 
