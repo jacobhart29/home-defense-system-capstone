@@ -1,30 +1,44 @@
+import os
 import time
 import pygame
-import os
 
-# SOUND MIXER
-pygame.mixer.init()
-
-SOUND_FOLDER = "./sounds" # has to be changed to the path thingy
-SUPPORTED_FORMATS = (".wav", ".mp3", ".ogg")
-
-LOADED_SOUNDS = {}
-
-if os.path.exists(SOUND_FOLDER):
-  for filename in os.listdir(SOUND_FOLDER):
-    if filename.lower().endswith(SUPPORTED_FORMATS):
-      FILE_PATH = os.path.join(SOUND_FOLDER, filename)
-      try:
-        LOADED_SOUNDS[filename] = pygame.mixer.Sound(FILE_PATH)
-        print(f"LOADED: {filename}")
-      except Exception es e:
-        print(f"ERROR LOADING: {filename}")
-else:
-    print("FOLDER NOT FOUND")
-
-print(f"\nSOUNDS LOADED: {len(LOADED_SOUNDS)}")
+CHANNEL = None
+FOLDER_PATH = ""
+SUPPORTED_EXTENSIONS = (".wav", ".mp3", ".ogg")
 
 
-def play_sound(file_name):
-  if file_name in LOADED_SOUNDS:
-    print(f"PLAYING {file_name})
+def init_audio(PATH):
+    global CHANNEL, FOLDER_PATH
+    pygame.mixer.init()
+    CHANNEL = pygame.mixer.Channel(0)
+    FOLDER_PATH = PATH
+
+
+def list_sounds():
+    if not os.path.exists(FOLDER_PATH):
+        return []
+
+    AUDIO_FILES = [
+        f
+        for f in os.listdir(FOLDER_PATH)
+        if f.lower().endswith(SUPPORTED_EXTENSIONS)
+    ]
+    return sorted(AUDIO_FILES)
+
+
+def play(FILENAME):
+    FULL_PATH = os.path.join(FOLDER_PATH, FILENAME)
+
+    if not os.path.exists(FULL_PATH):
+        return
+
+    try:
+        SOUND = pygame.mixer.Sound(FULL_PATH)
+        CHANNEL.play(SOUND)
+    except Exception:
+        pass
+
+
+def stop():
+    if CHANNEL and CHANNEL.get_busy():
+        CHANNEL.stop()
