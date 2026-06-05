@@ -19,8 +19,6 @@ audio.init_audio(str(Path(__file__).resolve().parent.parent / 'sounds'))
 sounds = audio.list_sounds()
 print(f"Available sounds: {sounds}")
 
-audio.play("cave3.ogg")
-
 app = Flask(__name__)
 
 class RTSPStreamReader:
@@ -111,6 +109,8 @@ def draw_pose_landmarks(frame, landmarks, color=(0, 255, 0), point_radius=3, thi
         x2 = int(np.clip(end.x, 0.0, 1.0) * width)
         y2 = int(np.clip(end.y, 0.0, 1.0) * height)
         cv2.line(frame, (x1, y1), (x2, y2), color, thickness)
+        
+
 
 rtsp_url1 = "rtsp://root:defense@192.168.0.90:554/axis-media/media.amp?videocodec=h264&camera=2"
 rtsp_url2 = "rtsp://root:defense@192.168.0.90:554/axis-media/media.amp?videocodec=h264&camera=1"
@@ -157,6 +157,7 @@ def process_camera_lens(frame):
     return frame, len(faces)
 
 def generate_tracking_frames():
+    alert_played = False
     while True:
         ret1, frame1, fps1 = cam1.read()
         ret2, frame2, fps2 = cam2.read()
@@ -179,6 +180,11 @@ def generate_tracking_frames():
         total_targets = faces1 + faces2
         if total_targets > 0:
             cv2.putText(merged_frame, f"PANORAMIC LOCK: {total_targets} TARGETS", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            if not alert_played:
+                audio.play("cave3.ogg")
+                alert_played = True
+        else:
+            alert_played = False
 
         ret, buffer = cv2.imencode('.jpg', merged_frame, [cv2.IMWRITE_JPEG_QUALITY, 50])
         if not ret: continue

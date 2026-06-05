@@ -5,11 +5,15 @@ import numpy as np
 import time
 import threading
 import datetime
+from pathlib import Path
+import audio
+
+audio.init_audio(str(Path(__file__).resolve().parent.parent / 'sounds'))
 
 # --- CONFIGURATION ---
 rtsp_url_1 = "rtsp://root:defense@192.168.0.90:554/axis-media/media.amp?videocodec=h264&camera=1"
 rtsp_url_2 = "rtsp://root:defense@192.168.0.91:554/axis-media/media.amp?videocodec=h264&camera=2"
-Db = "path to database"
+Db = "/home/pi/defese/deepface pics-20260603T190838Z-3-001.zip"  # Path to your DeepFace database
 model_name = "ArcFace"  
 detector = "opencv"     
 dist_m = "cosine"
@@ -142,6 +146,7 @@ def identity(face_crop):
                         cv2.imwrite(f".logs/unknowns/unknown_{timestamp}.jpg", face_crop)
                         with open("unknown_log.txt", "a") as f:
                             f.write(f"{datetime.datetime.now()}: Unknown face detected\n")
+                            audio.play("I SEE YOU Scary Voice Effect.ogg")
                             
                     lastresults.append((x1, y1, x2, y2, name, dist))
             except Exception as e:
