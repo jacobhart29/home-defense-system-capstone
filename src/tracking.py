@@ -129,7 +129,7 @@ def update_processing_loop():
         pose_landmarker = vision.PoseLandmarker.create_from_options(options)
         
         # Explicitly call objdetect to bypass headless OpenCV bugs
-        face_cascade = cv2.objdetect.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml') #FIXED STUPID LINE NOW WE GET 25 FPS GOOD ENOUGHT
 
         rtsp_url1 = "rtsp://root:defense@192.168.0.90:554/axis-media/media.amp?videocodec=h264&camera=2"
         rtsp_url2 = "rtsp://root:defense@192.168.0.90:554/axis-media/media.amp?videocodec=h264&camera=1"
