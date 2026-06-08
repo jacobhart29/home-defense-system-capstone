@@ -1,1 +1,0 @@
-its just gonna decide if yes or no based on what it is told and the data given
